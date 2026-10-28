@@ -1,0 +1,11 @@
+[package]
+name = "chipper"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web = "4"
+rust-embed = { version = "8", features = ["debug-embed", "mime-guess"] }
+serde = { version = "1", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
