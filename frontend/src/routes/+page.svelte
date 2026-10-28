@@ -9,6 +9,8 @@
 		.replaceAll('<a ', '<a target="_blank" rel="noopener noreferrer" ');
 
 	const tagline = 'Spend a weekend on a simple little emulator, earn a hackable handheld console!';
+	const words = tagline.split(' ');
+	const longest = Math.max(...words.map((word) => word.length));
 
 	const url = 'https://chipper.hackclub.com/';
 	const title = 'Chipper | Hack Club';
@@ -63,8 +65,8 @@
 			{/each}
 		</h1>
 		<p class="sr-only">{tagline}</p>
-		<div class="tagline" aria-hidden="true">
-			{#each tagline.split(' ') as word}
+		<div class="tagline" aria-hidden="true" style:--span={longest * 1.12 - 0.12}>
+			{#each words as word}
 				<span class="word">
 					{#each [...word] as letter}
 						<span class="key" style:--dl={rand(0.025)} style:--dh={rand(3)}>
@@ -317,7 +319,7 @@
 	}
 
 	.tagline {
-		--k: 48px;
+		--k: min(48px, 100cqw / var(--span));
 		--face: var(--beige);
 		--edge: var(--beige-dark);
 		--legend: var(--brown);
