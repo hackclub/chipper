@@ -59,6 +59,11 @@ fn expected_fields() -> Vec<Value> {
         text("HCA ID"),
         json!({ "name": "Hackatime Projects", "type": "multilineText" }),
         json!({ "name": "Phone Number", "type": "phoneNumber" }),
+        json!({
+            "name": "Grant Instead of Prize",
+            "type": "checkbox",
+            "options": { "icon": "check", "color": "greenBright" }
+        }),
     ]
 }
 

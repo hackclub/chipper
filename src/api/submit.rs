@@ -71,6 +71,7 @@ pub struct SubmitForm {
     code_url: Text<String>,
     description: Text<String>,
     projects: Vec<Text<String>>,
+    grant: Option<Text<bool>>,
     #[multipart(limit = "5MB")]
     screenshot: TempFile,
 }
@@ -89,6 +90,8 @@ struct ExtraFields {
     phone_number: String,
     #[serde(rename = "Justification - Submitter Hackatime ID")]
     hackatime_id: String,
+    #[serde(rename = "Grant Instead of Prize")]
+    grant: bool,
 }
 
 #[derive(Deserialize, Default)]
@@ -366,6 +369,7 @@ pub async fn submit(
             slack_id: auth_data.slack_id,
             phone_number: auth_data.phone_number,
             hackatime_id: hackatime_user.user_id.to_string(),
+            grant: form.grant.is_some_and(|grant| *grant),
         },
     )
     .await

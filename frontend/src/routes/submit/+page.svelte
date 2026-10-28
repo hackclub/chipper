@@ -22,6 +22,7 @@
 	let description = $state('');
 	let screenshot = $state<FileList | undefined>();
 	let screenshotError = $state('');
+	let grant = $state(false);
 
 	let submitting = $state(false);
 	let submitError = $state('');
@@ -48,7 +49,7 @@
 	);
 
 	$effect(() => {
-		const draft = JSON.stringify({ repositoryUrl, codeUrl, description, projects: [...ticked] });
+		const draft = JSON.stringify({ repositoryUrl, codeUrl, description, grant, projects: [...ticked] });
 		if (!restored) return;
 		try {
 			localStorage.setItem(DRAFT_KEY, draft);
@@ -78,6 +79,7 @@
 			repositoryUrl = draft.repositoryUrl ?? '';
 			codeUrl = draft.codeUrl ?? '';
 			description = draft.description ?? '';
+			grant = draft.grant === true;
 			for (const name of draft.projects ?? []) ticked.add(name);
 		} catch {}
 		restored = true;
@@ -171,6 +173,7 @@
 		body.append('description', description);
 		body.append('screenshot', file);
 		for (const name of ticked) body.append('projects', name);
+		body.append('grant', String(grant));
 
 		submitting = true;
 		submitError = '';
@@ -331,6 +334,15 @@
 						<p class="error" role="alert">{submitError}</p>
 					{/if}
 
+					<p class="hint">
+						By submitting, I understand that Hack Club is not liable for any customs fees that I may be charged in
+						order to receive the prize
+					</p>
+					<label class="grant">
+						<input type="checkbox" bind:checked={grant} />
+						Send me a grant instead so I can buy the prize from a spot with lower customs fees
+					</label>
+
 					<button type="submit" class="btn submit" disabled={!canSubmit}>
 						{submitting ? 'Submitting' : 'Submit'}
 					</button>
@@ -478,6 +490,16 @@
 		height: 1.1rem;
 		margin: 0;
 		accent-color: var(--beige);
+	}
+
+	.grant {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		margin-bottom: 1.25rem;
+		font-size: 0.875rem;
+		font-weight: 400;
+		cursor: pointer;
 	}
 
 	.projects {
