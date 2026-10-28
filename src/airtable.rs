@@ -49,6 +49,7 @@ fn expected_fields() -> Vec<Value> {
             "name": "Justification - Hackatime Project Name(s) + Date Range(s)",
             "type": "multilineText"
         }),
+        text("Justification - Submitter Hackatime ID"),
         json!({
             "name": "Prize Tier",
             "type": "singleSelect",

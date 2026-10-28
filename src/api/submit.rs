@@ -12,7 +12,8 @@ use hc_helper::{
     airtable::find_records,
     auth::{data::get_auth_data_with_token, login::get_auth_token_with_handling},
     hackatime::{
-        data::get_hackatime_project_summaries_with_token, login::get_hackatime_token_with_handling,
+        data::{get_hackatime_project_summaries_with_token, get_hackatime_user_with_token},
+        login::get_hackatime_token_with_handling,
     },
     submission::create_unified_with_token,
 };
@@ -86,6 +87,8 @@ struct ExtraFields {
     slack_id: String,
     #[serde(rename = "Phone Number")]
     phone_number: String,
+    #[serde(rename = "Justification - Submitter Hackatime ID")]
+    hackatime_id: String,
 }
 
 #[derive(Deserialize, Default)]
@@ -243,6 +246,22 @@ pub async fn submit(
             );
         }
     };
+    let hackatime_user = match get_hackatime_user_with_token(&hackatime_token).await {
+        Ok(x) => x,
+        Err(e) if is_unauthorized(&e) => {
+            return fail(
+                StatusCode::UNAUTHORIZED,
+                "Link your Hackatime account again",
+            )
+        }
+        Err(e) => {
+            error!(error = %format!("{e:#}"), "couldn't fetch Hackatime user for a submission");
+            return fail(
+                StatusCode::BAD_GATEWAY,
+                "Couldn't reach Hackatime, please try again",
+            );
+        }
+    };
     let mut seconds = 0.0;
     for name in &names {
         match summaries.iter().find(|p| &p.name == name) {
@@ -346,6 +365,7 @@ pub async fn submit(
             hackatime_projects,
             slack_id: auth_data.slack_id,
             phone_number: auth_data.phone_number,
+            hackatime_id: hackatime_user.user_id.to_string(),
         },
     )
     .await
