@@ -294,6 +294,12 @@
 		text-align: center;
 	}
 
+	@media (max-width: 1200px) {
+		header {
+			padding-top: calc(256px * 158 / 280 + 1rem);
+		}
+	}
+
 	.org {
 		margin: 0 0 0.5em;
 		font-size: calc(min(80vw, 100cqw) / 7.72 * 0.6);
@@ -319,7 +325,7 @@
 		flex-wrap: wrap;
 		justify-content: center;
 		gap: calc(var(--k) * 0.3) calc(var(--k) * 1.12);
-		margin-top: 2cqw;
+		margin-top: max(1.5rem, 4cqw);
 		line-height: 1;
 	}
 
