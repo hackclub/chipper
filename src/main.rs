@@ -1,5 +1,7 @@
+use std::io::IsTerminal;
 use std::time::Instant;
 
+use actix_governor::Governor;
 use actix_web::body::MessageBody;
 use actix_web::dev::{ServiceRequest, ServiceResponse};
 use actix_web::http::{header, Method, StatusCode};
@@ -11,6 +13,7 @@ use tracing_subscriber::EnvFilter;
 
 mod airtable;
 mod api;
+mod rate_limit;
 
 const REQUIRED_ENV: [&str; 8] = [
     "BASE_URL",
@@ -48,8 +51,14 @@ async fn frontend(req: HttpRequest) -> HttpResponse {
                 Frontend::get("200.html").expect("200.html is embedded"),
             ),
         };
+    let cache = if status == StatusCode::OK && path.starts_with("_app/immutable/") {
+        "public, max-age=31536000, immutable"
+    } else {
+        "no-cache"
+    };
     HttpResponseBuilder::new(status)
         .content_type(file.metadata.mimetype().to_owned())
+        .insert_header((header::CACHE_CONTROL, cache))
         .body(file.data.into_owned())
 }
 
@@ -75,6 +84,9 @@ async fn log_requests(
     req: ServiceRequest,
     next: Next<impl MessageBody>,
 ) -> Result<ServiceResponse<impl MessageBody>, Error> {
+    if req.path() == "/api/health" {
+        return next.call(req).await;
+    }
     let method = req.method().to_string();
     let path = req.path().to_string();
     let peer = hc_helper::client_ip(req.request());
@@ -99,7 +111,7 @@ async fn main() -> std::io::Result<()> {
         .with_env_filter(
             EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")),
         )
-        .with_ansi(true)
+        .with_ansi(std::io::stdout().is_terminal())
         .with_target(true)
         .init();
 
@@ -146,7 +158,8 @@ async fn main() -> std::io::Result<()> {
     info!(files, bytes, "frontend embedded");
     info!(%addr, "binding");
 
-    let server = HttpServer::new(|| {
+    let rate_limit = rate_limit::config();
+    let server = HttpServer::new(move || {
         App::new()
             .wrap(
                 DefaultHeaders::new()
@@ -159,6 +172,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(from_fn(log_requests))
             .service(
                 web::scope("/api")
+                    .wrap(Governor::new(&rate_limit))
                     .wrap(DefaultHeaders::new().add((header::CACHE_CONTROL, "no-store")))
                     .wrap(from_fn(reject_cross_site))
                     .configure(api::configure)

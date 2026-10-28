@@ -20,6 +20,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     .service(auth::hca_callback)
     .service(auth::hackatime_login)
     .service(auth::hackatime_callback)
+    .service(auth::logout)
     .service(auth::me)
     .service(hackatime::projects)
     .service(submit::submit);

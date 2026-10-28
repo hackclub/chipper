@@ -4,12 +4,13 @@ use anyhow::{anyhow, bail, Context, Result};
 use base64::{engine::general_purpose::STANDARD, Engine};
 use hc_helper::airtable::{self as hc_airtable, AirtableTable};
 use hc_helper::submission::UNIFIED_FIELDS;
-use reqwest::{Client, Url};
+use reqwest::{Client, StatusCode, Url};
 use serde_json::{json, Value};
 use tracing::{error, info, warn};
 
 pub const SCREENSHOT_FIELD: &str = "Screenshot";
 pub const PRIZE_TIERS: [&str; 3] = ["Thumby Color", "LILYGO T-Deck Max", "Both"];
+const RATE_LIMIT_WAIT: Duration = Duration::from_secs(30);
 
 static CLIENT: LazyLock<Client> = LazyLock::new(|| {
     Client::builder()
@@ -149,21 +150,32 @@ pub async fn upload_screenshot(
             "uploadAttachment",
         ]);
 
-    let response = CLIENT
-        .post(url)
-        .bearer_auth(&table.token)
-        .json(&json!({
-            "contentType": content_type,
-            "file": STANDARD.encode(bytes),
-            "filename": filename,
-        }))
-        .send()
-        .await?;
+    let body = json!({
+        "contentType": content_type,
+        "file": STANDARD.encode(bytes),
+        "filename": filename,
+    });
 
-    let status = response.status();
-    if !status.is_success() {
+    let mut rate_limited = false;
+    loop {
+        let response = CLIENT
+            .post(url.clone())
+            .bearer_auth(&table.token)
+            .json(&body)
+            .send()
+            .await?;
+
+        let status = response.status();
+        if status.is_success() {
+            return Ok(());
+        }
+        if status == StatusCode::TOO_MANY_REQUESTS && !rate_limited {
+            rate_limited = true;
+            warn!(%record_id, "Airtable rate limited the screenshot upload, retrying in 30s");
+            actix_web::rt::time::sleep(RATE_LIMIT_WAIT).await;
+            continue;
+        }
         let body = response.text().await.unwrap_or_default();
         bail!("Airtable responded {status}: {body}");
     }
-    Ok(())
 }

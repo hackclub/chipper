@@ -1,4 +1,6 @@
-use actix_web::{get, web::Query, HttpRequest, HttpResponse};
+use actix_web::{
+    cookie::Cookie, get, http::StatusCode, post, web::Query, HttpRequest, HttpResponse,
+};
 use hc_helper::{
     auth::{
         data::get_auth_data_with_token,
@@ -10,9 +12,10 @@ use hc_helper::{
     },
 };
 use serde::Serialize;
+use serde_json::json;
 use tracing::warn;
 
-use super::{site_url, AUTH_CALLBACK, HACKATIME_CALLBACK};
+use super::{fail, is_unauthorized, site_url, AUTH_CALLBACK, HACKATIME_CALLBACK};
 
 type NoTokenHook = fn(String) -> std::future::Ready<()>;
 
@@ -71,6 +74,21 @@ pub async fn hackatime_callback(
     .await
 }
 
+#[post("/logout")]
+pub async fn logout() -> HttpResponse {
+    let mut res = HttpResponse::Ok().json(json!({ "ok": true }));
+    for name in [hca_oauth::TOKEN_COOKIE, hackatime_oauth::TOKEN_COOKIE] {
+        for path in ["/", "/api"] {
+            let mut cookie = Cookie::new(name, "");
+            cookie.set_path(path);
+            cookie.set_secure(true);
+            cookie.set_http_only(true);
+            let _ = res.add_removal_cookie(&cookie);
+        }
+    }
+    res
+}
+
 #[derive(Serialize)]
 struct Me {
     signed_in: bool,
@@ -81,19 +99,31 @@ struct Me {
 #[get("/me")]
 pub async fn me(req: HttpRequest) -> HttpResponse {
     let auth = match get_auth_token_with_handling(&req) {
-        Some(token) => get_auth_data_with_token(&token)
-            .await
-            .inspect_err(
-                |e| warn!(error = %format!("{e:#}"), "couldn't fetch Hack Club Auth profile"),
-            )
-            .ok(),
+        Some(token) => match get_auth_data_with_token(&token).await {
+            Ok(auth) => Some(auth),
+            Err(e) if is_unauthorized(&e) => None,
+            Err(e) => {
+                warn!(error = %format!("{e:#}"), "couldn't fetch Hack Club Auth profile");
+                return fail(
+                    StatusCode::BAD_GATEWAY,
+                    "Couldn't reach Hack Club Auth, please refresh",
+                );
+            }
+        },
         None => None,
     };
     let hackatime_linked = match get_hackatime_token_with_handling(&req) {
-        Some(token) => get_hackatime_user_with_token(&token)
-            .await
-            .inspect_err(|e| warn!(error = %format!("{e:#}"), "couldn't fetch Hackatime user"))
-            .is_ok(),
+        Some(token) => match get_hackatime_user_with_token(&token).await {
+            Ok(_) => true,
+            Err(e) if is_unauthorized(&e) => false,
+            Err(e) => {
+                warn!(error = %format!("{e:#}"), "couldn't fetch Hackatime user");
+                return fail(
+                    StatusCode::BAD_GATEWAY,
+                    "Couldn't reach Hackatime, please refresh",
+                );
+            }
+        },
         None => false,
     };
 

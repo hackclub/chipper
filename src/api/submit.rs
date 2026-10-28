@@ -92,6 +92,8 @@ struct ExtraFields {
 struct EarlierSubmission {
     #[serde(rename = "Hackatime Projects", default)]
     hackatime_projects: String,
+    #[serde(rename = "Screenshot", default)]
+    screenshot: Vec<serde_json::Value>,
 }
 
 fn sniff_image(bytes: &[u8]) -> Option<(&'static str, &'static str)> {
@@ -310,9 +312,10 @@ pub async fn submit(
         .iter()
         .filter(|name| {
             earlier.iter().any(|s| {
-                s.hackatime_projects
-                    .lines()
-                    .any(|line| line == name.as_str())
+                !s.screenshot.is_empty()
+                    && s.hackatime_projects
+                        .lines()
+                        .any(|line| line == name.as_str())
             })
         })
         .map(String::as_str)
@@ -379,7 +382,7 @@ pub async fn submit(
         error!(%record_id, error = %format!("{e:#}"), "SCREENSHOT UPLOAD FAILED, record saved without it");
         return fail(
             StatusCode::BAD_GATEWAY,
-            "Your submission was saved but the screenshot failed to upload, please reach out so we can add it",
+            "Your screenshot didn't upload, please submit again",
         );
     }
 

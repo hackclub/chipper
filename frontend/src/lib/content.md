@@ -37,7 +37,7 @@ Notice your hours are starting to pile up from all the fancy features you're add
 ### Rapid-fire question round
 
 #### How do I track my time?
-Use [Hackatime](https://hackatime.hackclub.com/).
+Use [Hackatime](https://hackatime.hackclub.com/). Guidelines for fair play can be found [here](https://fraud.hackclub.com/fairplay).
 
 #### Vibecode?
 Nope. You can use AI for help when you're stuck, but you should be handwriting your code here to build the skill.

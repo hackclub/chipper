@@ -11,6 +11,7 @@
 	const DRAFT_KEY = 'chipper-submit-draft';
 
 	let me = $state<Me | null>(null);
+	let meError = $state('');
 	let projects = $state<Project[] | null>(null);
 	let projectsError = $state('');
 	const ticked = new SvelteSet<string>();
@@ -108,6 +109,29 @@
 		}
 	}
 
+	async function loadMe() {
+		try {
+			const res = await fetch('/api/me');
+			if (res.ok) {
+				me = await res.json();
+				meError = '';
+			} else meError = await errorMessage(res);
+		} catch {
+			meError = "Couldn't reach the server, please refresh";
+		}
+	}
+
+	async function signOut() {
+		try {
+			const res = await fetch('/api/logout', { method: 'POST' });
+			if (!res.ok) throw new Error();
+			projects = null;
+			await loadMe();
+		} catch {
+			meError = "Couldn't sign out, please refresh and try again";
+		}
+	}
+
 	async function loadProjects() {
 		try {
 			const res = await fetch('/api/hackatime/projects');
@@ -160,7 +184,7 @@
 				saveScreenshot(undefined);
 			} else {
 				submitError = await errorMessage(res);
-				if (res.status === 401) me = await fetch('/api/me').then((r) => r.json());
+				if (res.status === 401) await loadMe();
 			}
 		} catch {
 			submitError = "Couldn't reach the server, please try again";
@@ -171,12 +195,8 @@
 
 	onMount(async () => {
 		restoreDraft();
-		try {
-			const res = await fetch('/api/me');
-			if (res.ok) me = await res.json();
-		} catch {}
-		me ??= { signed_in: false, first_name: '', hackatime_linked: false };
-		if (me.hackatime_linked) await loadProjects();
+		await loadMe();
+		if (me?.hackatime_linked) await loadProjects();
 	});
 </script>
 
@@ -201,8 +221,11 @@
 			<p role="status">Submitted! Thanks for building a CHIP-8 emulator.</p>
 		{:else}
 			<div class="account">
-				{#if me?.signed_in}
+				{#if meError}
+					<p class="error" role="alert">{meError}</p>
+				{:else if me?.signed_in}
 					<p>Signed in as {me.first_name}</p>
+					<button type="button" class="link" onclick={signOut}>Sign out</button>
 				{:else if me}
 					<a class="btn" href="/api/login">Sign in with Hack Club Auth</a>
 				{/if}
@@ -355,6 +378,17 @@
 
 	.account p {
 		margin: 0;
+	}
+
+	.link {
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--blue-light);
+		font: inherit;
+		font-size: 0.875rem;
+		text-decoration: underline;
+		cursor: pointer;
 	}
 
 	fieldset {
