@@ -11,7 +11,14 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 
-			adapter: adapter({ fallback: 'index.html' })
+			adapter: adapter({ fallback: '200.html' }),
+
+			prerender: {
+				handleHttpError: ({ path, message }) => {
+					if (path === '/submit') return;
+					throw new Error(message);
+				}
+			}
 		})
 	],
 	server: {

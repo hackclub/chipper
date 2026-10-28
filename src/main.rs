@@ -27,8 +27,8 @@ async fn frontend(req: HttpRequest) -> HttpResponse {
     let path = req.path().trim_start_matches('/');
     let path = if path.is_empty() { "index.html" } else { path };
     let file = Frontend::get(path)
-        .or_else(|| Frontend::get("index.html"))
-        .expect("index.html is embedded");
+        .or_else(|| Frontend::get("200.html"))
+        .expect("200.html is embedded");
     HttpResponse::Ok()
         .content_type(file.metadata.mimetype().to_owned())
         .body(file.data.into_owned())
