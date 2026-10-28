@@ -2,6 +2,7 @@
 	import { marked } from 'marked';
 	import AluminumRibbing from '#lib/AluminumRibbing.svelte';
 	import content from '#lib/content.md?raw';
+	import flag from '#lib/assets/flag-orpheus-left.svg?raw';
 
 	const html = marked
 		.parse(content, { async: false })
@@ -10,7 +11,7 @@
 	const tagline = 'Spend a weekend on a simple little emulator, earn a hackable handheld console!';
 
 	const url = 'https://chipper.hackclub.com/';
-	const title = 'Chipper: Build a CHIP-8 Emulator, Earn a Hackable Handheld | Hack Club';
+	const title = 'Chipper | Hack Club';
 	const description =
 		'Spend a weekend building a CHIP-8 emulator in any language and earn a free hackable handheld console from Hack Club. Open to teens 13 to 18.';
 	const image = `${url}og.png`;
@@ -30,7 +31,6 @@
 	<title>{title}</title>
 	<meta name="description" content={description} />
 	<meta name="robots" content="index, follow, max-image-preview:large" />
-	<meta name="theme-color" content="#0a0a0a" />
 	<link rel="canonical" href={url} />
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="Chipper by Hack Club" />
@@ -49,51 +49,53 @@
 </svelte:head>
 
 <main>
-<a target="_blank" rel="noopener noreferrer" href="https://hackclub.com/"><img style="position: absolute; top: 0; left: 10px; border: 0; width: 256px; z-index: 999;" src="https://assets.hackclub.com/flag-orpheus-left.svg" alt="Hack Club"/></a>
-<header>
-	<p class="org">Hack Club</p>
-	<h1>
-		<span class="sr-only">Chipper</span>
-		{#each [...'Chipper'] as letter}
-			<span class="key" aria-hidden="true" style:--dl={rand(0.025)} style:--dh={rand(3)}>
-				<span>{letter}</span>
-			</span>
-		{/each}
-	</h1>
-	<p class="sr-only">{tagline}</p>
-	<div class="tagline" aria-hidden="true">
-		{#each tagline.split(' ') as word}
-			<span class="word">
-				{#each [...word] as letter}
-					<span class="key" style:--dl={rand(0.025)} style:--dh={rand(3)}>
-						<span>{letter}</span>
-					</span>
-				{/each}
-			</span>
-		{/each}
-	</div>
-</header>
+	<a class="flag" target="_blank" rel="noopener noreferrer" href="https://hackclub.com/" aria-label="Hack Club">
+		{@html flag}
+	</a>
+	<header>
+		<p class="org">Hack Club</p>
+		<h1>
+			<span class="sr-only">Chipper</span>
+			{#each [...'Chipper'] as letter}
+				<span class="key" aria-hidden="true" style:--dl={rand(0.025)} style:--dh={rand(3)}>
+					<span>{letter}</span>
+				</span>
+			{/each}
+		</h1>
+		<p class="sr-only">{tagline}</p>
+		<div class="tagline" aria-hidden="true">
+			{#each tagline.split(' ') as word}
+				<span class="word">
+					{#each [...word] as letter}
+						<span class="key" style:--dl={rand(0.025)} style:--dh={rand(3)}>
+							<span>{letter}</span>
+						</span>
+					{/each}
+				</span>
+			{/each}
+		</div>
+	</header>
 
-<AluminumRibbing>
-	<article>{@html html}</article>
-	<div class="actions">
-		<div class="console">
-			<img src="/thumby-color.svg" alt="Line drawing of a hackable handheld console" />
+	<AluminumRibbing>
+		<article>{@html html}</article>
+		<div class="actions">
+			<div class="console">
+				<img src="/thumby-color.svg" alt="Line drawing of a hackable handheld console" />
+			</div>
+			<div class="cta">
+				<p class="notice">All done with your CHIP-8 emulator?</p>
+				<a class="key submit" target="_blank" rel="noopener noreferrer" href="/submit" style:--dl={rand(0.025)} style:--dh={rand(3)}>
+					<span>Submit</span>
+				</a>
+			</div>
 		</div>
-		<div class="cta">
-			<p class="notice">All done with your CHIP-8 emulator?</p>
-			<a class="key submit" target="_blank" rel="noopener noreferrer" href="/submit" style:--dl={rand(0.025)} style:--dh={rand(3)}>
-				<span>Submit</span>
-			</a>
-		</div>
-	</div>
-	<footer>
-		<a target="_blank" rel="noopener noreferrer" href="https://hackclub.com/">Hack Club</a>
-		<a target="_blank" rel="noopener noreferrer" href="https://hackclub.com/privacy-and-terms">Terms &amp; Privacy Policy</a>
-		<a target="_blank" rel="noopener noreferrer" href="https://forms.hackclub.com/bounty">Fulfillment bounty</a>
-		<a target="_blank" rel="noopener noreferrer" href="https://security.hackclub.com/">Security</a>
-	</footer>
-</AluminumRibbing>
+		<footer>
+			<a target="_blank" rel="noopener noreferrer" href="https://hackclub.com/">Hack Club</a>
+			<a target="_blank" rel="noopener noreferrer" href="https://hackclub.com/privacy-and-terms">Terms &amp; Privacy Policy</a>
+			<a target="_blank" rel="noopener noreferrer" href="https://forms.hackclub.com/bounty">Fulfillment bounty</a>
+			<a target="_blank" rel="noopener noreferrer" href="https://security.hackclub.com/">Security</a>
+		</footer>
+	</AluminumRibbing>
 </main>
 
 <style>
@@ -115,7 +117,21 @@
 
 	footer a {
 		padding: 0.25rem 0;
-		color: #8fd3ee;
+		color: var(--blue-light);
+	}
+
+	.flag {
+		position: absolute;
+		top: 0;
+		left: 10px;
+		z-index: 999;
+		width: 256px;
+	}
+
+	.flag :global(svg) {
+		display: block;
+		width: 100%;
+		height: auto;
 	}
 
 	.sr-only {
@@ -128,11 +144,6 @@
 		clip-path: inset(50%);
 		white-space: nowrap;
 		border: 0;
-	}
-
-	a:focus-visible {
-		outline: 3px solid #fff;
-		outline-offset: 4px;
 	}
 
 	article {
@@ -194,8 +205,7 @@
 		height: calc-size(auto, round(up, size + 2px, var(--cell)) - 2px);
 		margin: 0 0 calc(var(--cell) + 2px);
 		padding: 0 1rem;
-		background: #0a0a0a;
-		font-family: 'JetBrains Mono', monospace;
+		background: var(--black);
 		font-size: 0.875rem;
 		line-height: 1.6;
 		text-align: center;
@@ -203,23 +213,15 @@
 
 	.key.submit {
 		--k: calc(4 * var(--cell));
-		--face: #e5c6a5;
-		--edge: #a8875f;
-		--legend: #4a3826;
+		--face: var(--beige);
+		--edge: var(--beige-dark);
+		--legend: var(--brown);
 		width: calc(min(16 * var(--cell), 100% + 2px) - 2px);
 		height: calc(4 * var(--cell));
 		aspect-ratio: auto;
 		margin-left: max(0px, round(down, calc((100% + 2px - 16 * var(--cell)) / 2), var(--cell)));
 		margin-bottom: 0;
 		text-decoration: none;
-	}
-
-	.key.submit {
-		filter: drop-shadow(0.25em 0.25em 0 rgba(0, 0, 0, 0.45));
-	}
-
-	.key.submit:active {
-		filter: drop-shadow(0.1em 0.1em 0 rgba(0, 0, 0, 0.45));
 	}
 
 	.key.submit span {
@@ -233,8 +235,7 @@
 		height: calc-size(auto, round(up, size + 2px, var(--cell)) - 2px);
 		margin-left: calc(round(down, calc((100% - var(--w)) / 2), var(--cell)) + 2px);
 		padding: 2rem;
-		background: #0a0a0a;
-		font-family: 'JetBrains Mono', monospace;
+		background: var(--black);
 		line-height: 1.6;
 	}
 
@@ -247,18 +248,18 @@
 	}
 
 	article :global(a) {
-		color: #8fd3ee;
+		color: var(--blue-light);
 	}
 
 	article :global(code) {
 		padding: 0.1em 0.3em;
-		background: #1c1c1c;
+		background: var(--grey-800);
 	}
 
 	article :global(pre) {
 		overflow-x: auto;
 		padding: 1rem;
-		background: #1c1c1c;
+		background: var(--grey-800);
 	}
 
 	article :global(pre code) {
@@ -268,7 +269,7 @@
 	article :global(blockquote) {
 		margin-left: 0;
 		padding-left: 1rem;
-		border-left: 2px solid #4e8ea9;
+		border-left: 2px solid var(--blue);
 	}
 
 	article :global(img) {
@@ -282,7 +283,7 @@
 	article :global(th),
 	article :global(td) {
 		padding: 0.3rem 0.8rem;
-		border: 1px solid #4e8ea9;
+		border: 1px solid var(--blue);
 	}
 
 	header {
@@ -295,7 +296,6 @@
 
 	.org {
 		margin: 0 0 0.5em;
-		font-family: 'JetBrains Mono', monospace;
 		font-size: calc(min(80vw, 100cqw) / 7.72 * 0.6);
 		line-height: 1;
 	}
@@ -312,9 +312,9 @@
 
 	.tagline {
 		--k: 48px;
-		--face: #e5c6a5;
-		--edge: #a8875f;
-		--legend: #4a3826;
+		--face: var(--beige);
+		--edge: var(--beige-dark);
+		--legend: var(--brown);
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
@@ -337,8 +337,8 @@
 		place-items: center;
 		font-size: var(--k);
 		box-sizing: border-box;
-		--f: oklch(from var(--face, #4e8ea9) calc(l + var(--dl)) c calc(h + var(--dh)));
-		--e: oklch(from var(--edge, #2f6178) calc(l + var(--dl)) c calc(h + var(--dh)));
+		--f: oklch(from var(--face, var(--blue)) calc(l + var(--dl)) c calc(h + var(--dh)));
+		--e: oklch(from var(--edge, var(--blue-dark)) calc(l + var(--dl)) c calc(h + var(--dh)));
 		border: 0.05em solid var(--e);
 		border-radius: 0.03em;
 		background: var(--f);
@@ -353,10 +353,9 @@
 	}
 
 	.key span {
-		font-family: 'JetBrains Mono', monospace;
 		font-size: 0.55em;
 		font-weight: 700;
 		text-transform: uppercase;
-		color: var(--legend, #fff);
+		color: var(--legend, var(--white));
 	}
 </style>

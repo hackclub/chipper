@@ -49,10 +49,10 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		background-color: #2f6178;
+		background-color: var(--blue-dark);
 		background-image:
-			linear-gradient(to right, #4e8ea9 2px, transparent 2px),
-			linear-gradient(to bottom, #4e8ea9 2px, transparent 2px);
+			linear-gradient(to right, var(--blue) 2px, transparent 2px),
+			linear-gradient(to bottom, var(--blue) 2px, transparent 2px);
 		background-size: var(--cell) var(--cell);
 		clip-path: polygon(
 			0 calc(var(--drop) - 1px),
@@ -90,11 +90,11 @@
 		transform: translateY(-50%) rotate(var(--angle));
 		background-image: linear-gradient(
 			to bottom,
-			#aaaeb2 0%,
-			#bec2c5 40%,
-			#c8cbce 55%,
-			#b6babd 80%,
-			#a9adb1 100%
+			var(--aluminum-dark) 0%,
+			var(--aluminum) 40%,
+			var(--aluminum-light) 55%,
+			var(--aluminum-mid) 80%,
+			var(--aluminum-dark) 100%
 		);
 		background-size: 100% var(--band);
 	}

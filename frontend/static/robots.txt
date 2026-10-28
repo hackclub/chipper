@@ -1,4 +1,4 @@
 User-agent: *
-Disallow:
+Disallow: /api/
 
 Sitemap: https://chipper.hackclub.com/sitemap.xml

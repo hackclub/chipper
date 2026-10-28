@@ -37,7 +37,7 @@ Notice your hours are starting to pile up from all the fancy features you're add
 ### Rapid-fire question round
 
 #### How do I track my time?
-Use [Hackatime](https://hackatime.hackclub.com/)
+Use [Hackatime](https://hackatime.hackclub.com/).
 
 #### Vibecode?
 Nope. You can use AI for help when you're stuck, but you should be handwriting your code here to build the skill.
@@ -45,7 +45,7 @@ Nope. You can use AI for help when you're stuck, but you should be handwriting y
 #### Who can get prizes?
 Any teenager 13 through 18 inclusive.
 
-#### But how do you afford this?
+#### But how is this paid for? 
 Hack Club affords prizes through generous donations.
 
 ### Get started!
