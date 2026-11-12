@@ -24,6 +24,7 @@ use tracing::{error, info};
 use super::{fail, is_unauthorized};
 use crate::airtable;
 
+const SUBMISSIONS_OPEN: bool = false;
 const SECONDS_PER_HOUR: f64 = 3600.0;
 pub const MAX_SCREENSHOT_BYTES: usize = 5_000_000;
 const MAX_DESCRIPTION_CHARS: usize = 10_000;
@@ -123,6 +124,12 @@ pub async fn submit(
     req: HttpRequest,
     form: Result<MultipartForm<SubmitForm>, actix_web::Error>,
 ) -> HttpResponse {
+    if !SUBMISSIONS_OPEN {
+        return fail(
+            StatusCode::GONE,
+            "Chipper ended on November 10th, submissions are closed",
+        );
+    }
     let Some(auth_token) = get_auth_token_with_handling(&req) else {
         return fail(
             StatusCode::UNAUTHORIZED,

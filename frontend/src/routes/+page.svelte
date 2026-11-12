@@ -79,6 +79,11 @@
 	</header>
 
 	<AluminumRibbing>
+		<p class="ended">
+			Chipper ended on November 10th. See
+			<a target="_blank" rel="noopener noreferrer" href="https://hackclub.com/programs">hackclub.com/programs</a> for more just
+			like it!
+		</p>
 		<article>{@html html}</article>
 		<div class="actions">
 			<div class="console">
@@ -152,6 +157,17 @@
 		margin-bottom: calc(2 * var(--cell) + 2px);
 	}
 
+	.ended {
+		margin-top: 0;
+		margin-bottom: calc(2 * var(--cell) + 2px);
+		text-align: center;
+	}
+
+	.ended a {
+		color: var(--blue-light);
+	}
+
+	.ended,
 	article,
 	footer,
 	.actions {
@@ -230,6 +246,7 @@
 		letter-spacing: 0.1em;
 	}
 
+	.ended,
 	article,
 	footer {
 		box-sizing: border-box;

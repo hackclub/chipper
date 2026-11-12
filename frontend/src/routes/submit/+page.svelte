@@ -343,7 +343,7 @@
 						Send me a grant instead so I can buy the prize from a spot with lower customs fees
 					</label>
 
-					<button type="submit" class="btn submit" disabled={!canSubmit}>
+					<button type="submit" class="btn submit" disabled>
 						{submitting ? 'Submitting' : 'Submit'}
 					</button>
 				</fieldset>
